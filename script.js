@@ -8,13 +8,7 @@
 let currentPage = 1;
 let musicPlaying = false;        // FIX: was true but no music was started, causing mismatch
 let envelopeOpened = false;      // FIX: was true, so envelope could never be opened
-let audioCtx = null;
-let bgmGain = null;
-let musicMode = 'synth';         // 'synth' | 'birthday'
-let synthTimeout = null;
-let activeOscillators = [];
-let hbSongTimeout = null;        // timeout handle for Happy Birthday song loop
-let chordIntervalId = null;      // interval handle for ambient chords
+let bgAudio = null;              // Global audio object for Kiira Sambar playback
 
 // ─── DOM Ready ───────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
@@ -577,312 +571,51 @@ function triggerFinalSurprise() {
 }
 
 // =====================================================
-//  MUSIC — Web Audio API
-//  Includes: Happy Birthday Avani song + ambient chords
+//  MUSIC PLAYBACK — Kiira Sambar
 // =====================================================
 
-/**
- * Ensures AudioContext is created (requires user gesture first).
- */
-function ensureAudioCtx() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-  if (audioCtx.state === 'suspended') {
-    audioCtx.resume();
+function initAudio() {
+  if (!bgAudio) {
+    bgAudio = new Audio('Kiira Sambar.mp4');
+    bgAudio.loop = true;
   }
 }
 
-/**
- * Creates a convolver node simulating reverb.
- */
-function createReverb(ctx) {
-  const convolver = ctx.createConvolver();
-  const length = ctx.sampleRate * 2.5;
-  const impulse = ctx.createBuffer(2, length, ctx.sampleRate);
-  for (let c = 0; c < 2; c++) {
-    const data = impulse.getChannelData(c);
-    for (let i = 0; i < length; i++) {
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, 2.8);
-    }
-  }
-  convolver.buffer = impulse;
-  return convolver;
-}
-
-/**
- * Play a single note using an oscillator.
- * @param {AudioContext} ctx
- * @param {AudioNode} dest  - destination node (reverb or master gain)
- * @param {number} freq     - frequency in Hz (0 = rest/silence)
- * @param {number} start    - start time (ctx.currentTime offset)
- * @param {number} duration - note duration in seconds
- * @param {number} volume   - gain 0..1
- * @param {string} type     - oscillator type
- */
-function scheduleNote(ctx, dest, freq, start, duration, volume = 0.25, type = 'sine') {
-  if (freq === 0) return; // rest
-
-  const osc = ctx.createOscillator();
-  const gainNode = ctx.createGain();
-
-  osc.type = type;
-  osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
-
-  // Envelope: attack / sustain / release
-  const attack = 0.05;
-  const release = Math.min(0.12, duration * 0.3);
-  gainNode.gain.setValueAtTime(0, ctx.currentTime + start);
-  gainNode.gain.linearRampToValueAtTime(volume, ctx.currentTime + start + attack);
-  gainNode.gain.setValueAtTime(volume, ctx.currentTime + start + duration - release);
-  gainNode.gain.linearRampToValueAtTime(0, ctx.currentTime + start + duration);
-
-  osc.connect(gainNode);
-  gainNode.connect(dest);
-  osc.start(ctx.currentTime + start);
-  osc.stop(ctx.currentTime + start + duration + 0.05);
-
-  activeOscillators.push(osc);
-}
-
-/**
- * "Happy Birthday to You" — pitched for Avani
- *
- * Standard melody in C major. Notes:
- * C4=261.63, D4=293.66, E4=329.63, F4=349.23, G4=392.00,
- * A4=440.00, B4=493.88, C5=523.25, D5=587.33, E5=659.25,
- * F5=698.46, G5=783.99
- *
- * The song goes (simplified solfège → C key):
- * "Hap-py Birth-day to you" (×2), "Hap-py Birth-day dear A-va-ni", "Hap-py Birth-day to you!"
- */
-function playHappyBirthdaySong(masterGain) {
-  const ctx = audioCtx;
-  const reverb = createReverb(ctx);
-  reverb.connect(masterGain);
-
-  // Frequencies
-  const C4 = 261.63, D4 = 293.66, E4 = 329.63,
-        F4 = 349.23, G4 = 392.00, A4 = 440.00,
-        B4 = 493.88, C5 = 523.25, D5 = 587.33,
-        E5 = 659.25, F5 = 698.46, G5 = 783.99;
-
-  // Tempo: quarter note = 0.5s (120 BPM)
-  const q = 0.5;   // quarter note
-  const h = 1.0;   // half note
-  const dq = 0.75; // dotted quarter
-  const e = 0.25;  // eighth note
-  const dh = 1.5;  // dotted half
-
-  // [freq, duration] pairs
-  const melody = [
-    // "Hap-py Birth-day to you"
-    [C4, e],  [C4, e],  [D4, q],  [C4, q],  [F4, q],  [E4, h],
-    // "Hap-py Birth-day to you"
-    [C4, e],  [C4, e],  [D4, q],  [C4, q],  [G4, q],  [F4, h],
-    // "Hap-py Birth-day dear A-va-ni"
-    [C4, e],  [C4, e],  [C5, q],  [A4, q],  [F4, q],  [E4, q],  [D4, h],
-    // "Hap-py Birth-day to you!"
-    [B4, e],  [B4, e],  [A4, q],  [F4, q],  [G4, q],  [F4, dh],
-  ];
-
-  // Harmony (lower octave, simpler chord tones) — adds richness
-  const harmony = [
-    [E4 / 2, e],  [E4 / 2, e],  [F4 / 2, q],  [E4 / 2, q],  [A4 / 2, q],  [G4 / 2, h],
-    [E4 / 2, e],  [E4 / 2, e],  [F4 / 2, q],  [E4 / 2, q],  [C4 / 2, q],  [A4 / 2, h],
-    [E4 / 2, e],  [E4 / 2, e],  [G4 / 2, q],  [E4 / 2, q],  [A4 / 2, q],  [G4 / 2, q],  [F4 / 2, h],
-    [G4 / 2, e],  [G4 / 2, e],  [E4 / 2, q],  [A4 / 2, q],  [C4, q],      [A4 / 2, dh],
-  ];
-
-  // Schedule melody
-  let t = 0.1; // slight lead-in
-  melody.forEach(([freq, dur]) => {
-    scheduleNote(ctx, reverb, freq, t, dur * 0.92, 0.28, 'sine');
-    t += dur;
-  });
-
-  // Schedule harmony (softer, triangle wave)
-  let th = 0.1;
-  harmony.forEach(([freq, dur]) => {
-    scheduleNote(ctx, reverb, freq, th, dur * 0.88, 0.10, 'triangle');
-    th += dur;
-  });
-
-  // Total song duration
-  const totalDuration = melody.reduce((acc, [, d]) => acc + d, 0);
-  return totalDuration + 0.5; // extra half-second buffer
-}
-
-/**
- * Beautiful dreamy ambient chords (C major → Am → F → G).
- */
-function playAmbientMusic(masterGain) {
-  const chordSets = [
-    [261.63, 329.63, 392.00, 523.25], // C major
-    [220.00, 261.63, 329.63, 440.00], // A minor
-    [174.61, 220.00, 261.63, 349.23], // F major
-    [196.00, 246.94, 293.66, 392.00], // G major
-  ];
-
-  const reverb = createReverb(audioCtx);
-  reverb.connect(masterGain);
-
-  let chordIndex = 0;
-  let oscillators = [];
-
-  function playChord(notes) {
-    oscillators.forEach(osc => {
-      try { osc.gain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1); }
-      catch (e) { }
-      setTimeout(() => { try { osc.osc.stop(); } catch (e) { } }, 1500);
-    });
-    oscillators = [];
-
-    notes.forEach((freq, i) => {
-      const osc = audioCtx.createOscillator();
-      const g = audioCtx.createGain();
-      osc.type = i === 0 ? 'sine' : 'triangle';
-      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      g.gain.setValueAtTime(0, audioCtx.currentTime);
-      g.gain.linearRampToValueAtTime(0.018 + (i === 0 ? 0.01 : 0), audioCtx.currentTime + 1.5);
-      osc.connect(g);
-      g.connect(reverb);
-      osc.start();
-      oscillators.push({ osc, gain: g });
-    });
-  }
-
-  // Gentle melody on top
-  const melodyNotes = [523.25, 587.33, 659.25, 698.46, 783.99, 698.46, 659.25, 587.33];
-  let melodyIdx = 0;
-
-  function playMelodyNote() {
-    if (!musicPlaying) return;
-    const osc = audioCtx.createOscillator();
-    const g = audioCtx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(melodyNotes[melodyIdx % melodyNotes.length], audioCtx.currentTime);
-    g.gain.setValueAtTime(0, audioCtx.currentTime);
-    g.gain.linearRampToValueAtTime(0.04, audioCtx.currentTime + 0.1);
-    g.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
-    osc.connect(g);
-    g.connect(reverb);
-    osc.start();
-    osc.stop(audioCtx.currentTime + 1);
-    melodyIdx++;
-    if (musicPlaying) setTimeout(playMelodyNote, 700 + Math.random() * 300);
-  }
-
-  playChord(chordSets[0]);
-  setTimeout(playMelodyNote, 2000);
-
-  chordIntervalId = setInterval(() => {
-    if (!musicPlaying) { clearInterval(chordIntervalId); return; }
-    chordIndex = (chordIndex + 1) % chordSets.length;
-    playChord(chordSets[chordIndex]);
-  }, 4000);
-}
-
-/**
- * Main toggle — cycles: OFF → Happy Birthday → Ambient chords → OFF
- */
 function toggleMusic() {
   const btn = document.getElementById('music-btn');
-  ensureAudioCtx();
+  initAudio();
 
   if (musicPlaying) {
-    // Stop everything
     stopAllMusic();
-    btn.textContent = '🎵';
-    btn.classList.remove('playing');
-    btn.title = 'Play Music';
-    musicPlaying = false;
-    musicMode = 'off';
-  } else if (musicMode === 'off' || musicMode === 'ambient') {
-    // Play Happy Birthday song first
-    stopAllMusic();
-    startMusicSession('birthday');
-  } else if (musicMode === 'birthday') {
-    // Switch to ambient
-    stopAllMusic();
-    startMusicSession('ambient');
-  }
-}
-
-function startMusicSession(mode) {
-  const btn = document.getElementById('music-btn');
-  ensureAudioCtx();
-
-  // Master gain
-  const masterGain = audioCtx.createGain();
-  masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-  masterGain.gain.linearRampToValueAtTime(0.7, audioCtx.currentTime + 1.5);
-  masterGain.connect(audioCtx.destination);
-  bgmGain = masterGain;
-
-  musicPlaying = true;
-  musicMode = mode;
-
-  if (mode === 'birthday') {
-    btn.textContent = '🎂';
-    btn.classList.add('playing');
-    btn.title = 'Playing: Happy Birthday Avani 🎂 (tap to switch to ambient)';
-
-    const songDuration = playHappyBirthdaySong(masterGain);
-
-    // After song finishes, auto-loop it or switch to ambient
-    hbSongTimeout = setTimeout(() => {
-      if (musicPlaying) {
-        stopAllMusic();
-        startMusicSession('ambient'); // switch to ambient after song
-      }
-    }, songDuration * 1000);
-
   } else {
-    btn.textContent = '🔊';
-    btn.classList.add('playing');
-    btn.title = 'Playing: Ambient Music 🎶 (tap to stop)';
-    playAmbientMusic(masterGain);
+    bgAudio.play().then(() => {
+      musicPlaying = true;
+      btn.textContent = '🔊';
+      btn.classList.add('playing');
+      btn.title = 'Playing: Kiira Sambar 🎵 (tap to stop)';
+      saveUserData();
+    }).catch(err => {
+      console.error("Audio playback failed:", err);
+    });
   }
 }
 
 function stopAllMusic() {
-  // Stop chord interval
-  if (chordIntervalId) {
-    clearInterval(chordIntervalId);
-    chordIntervalId = null;
+  if (bgAudio) {
+    bgAudio.pause();
   }
-  // Stop HB song timeout
-  if (hbSongTimeout) {
-    clearTimeout(hbSongTimeout);
-    hbSongTimeout = null;
+  musicPlaying = false;
+  const btn = document.getElementById('music-btn');
+  if (btn) {
+    btn.textContent = '🎵';
+    btn.classList.remove('playing');
+    btn.title = 'Play Music';
   }
-  // Fade out master gain
-  if (bgmGain && audioCtx) {
-    try {
-      bgmGain.gain.cancelScheduledValues(audioCtx.currentTime);
-      bgmGain.gain.setValueAtTime(bgmGain.gain.value, audioCtx.currentTime);
-      bgmGain.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.8);
-    } catch (e) { }
-  }
-  // Stop all active oscillators
-  activeOscillators.forEach(osc => {
-    try { osc.stop(audioCtx ? audioCtx.currentTime + 0.8 : 0); } catch (e) { }
-  });
-  activeOscillators = [];
-  bgmGain = null;
+  saveUserData();
 }
 
-// FIX: loadMusicSettings was called but never defined
 function loadMusicSettings() {
-  // Restore saved music preference from localStorage if any
-  const savedMode = localStorage.getItem('avani_music_mode');
-  if (savedMode) {
-    musicMode = savedMode;
-  } else {
-    musicMode = 'off';
-  }
-  // We don't auto-play on load — user must click to comply with browser autoplay policies
+  initAudio();
 }
 
 // =====================================================
@@ -1027,7 +760,7 @@ function saveUserData() {
   };
 
   localStorage.setItem('avani_bday_surprise_data', JSON.stringify(data));
-  localStorage.setItem('avani_music_mode', musicMode);
+  localStorage.setItem('avani_music_mode', musicPlaying ? 'playing' : 'off');
 }
 
 function loadUserData() {
