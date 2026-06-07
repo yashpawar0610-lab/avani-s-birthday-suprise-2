@@ -738,7 +738,7 @@ function saveUserData() {
       letterBodyContent = letterBodyEl.innerHTML;
     } else {
       // If currently typing, fetch from existing localStorage to avoid saving partial text
-      const raw = localStorage.getItem('avani_bday_surprise_data');
+      const raw = localStorage.getItem('avani_bday_surprise_data_v3');
       if (raw) {
         try {
           const parsed = JSON.parse(raw);
@@ -759,12 +759,12 @@ function saveUserData() {
     signature: document.querySelector('.letter-signature') ? document.querySelector('.letter-signature').innerHTML : ''
   };
 
-  localStorage.setItem('avani_bday_surprise_data', JSON.stringify(data));
+  localStorage.setItem('avani_bday_surprise_data_v3', JSON.stringify(data));
   localStorage.setItem('avani_music_mode', musicPlaying ? 'playing' : 'off');
 }
 
 function loadUserData() {
-  const raw = localStorage.getItem('avani_bday_surprise_data');
+  const raw = localStorage.getItem('avani_bday_surprise_data_v3');
   if (!raw) return;
 
   try {
@@ -830,7 +830,7 @@ function loadUserData() {
 
 function resetEditorData() {
   if (confirm('Are you sure you want to reset all text edits back to their default values? 💕')) {
-    localStorage.removeItem('avani_bday_surprise_data');
+    localStorage.removeItem('avani_bday_surprise_data_v3');
     localStorage.removeItem('avani_music_mode');
     alert('Reset! The page will now reload.');
     window.location.reload();
