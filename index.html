@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Happy Birthday, Avani ❤️ | A Special Surprise</title>
+  <meta name="description" content="A little corner of the internet made especially for someone truly wonderful — Happy Birthday, Avani!" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎂</text></svg>" />
+</head>
+<body>
+
+<!-- ==================== CURSOR ==================== -->
+<div id="cursor"></div>
+<div id="cursor-trail"></div>
+
+<!-- ==================== CANVAS ==================== -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- ==================== LOADING ==================== -->
+<div id="loading-screen">
+  <div class="loading-heart">💗</div>
+  <p class="loading-text">Getting ready for someone special…</p>
+  <div class="loading-bar"><div class="loading-bar-fill"></div></div>
+</div>
+
+<!-- ==================== PAGE TRANSITION ==================== -->
+<div class="page-transition" id="page-transition">💖</div>
+
+<!-- ==================== PAGE DOTS ==================== -->
+<div class="page-dots" id="page-dots">
+  <button class="page-dot active" id="dot-1" onclick="goToPage(1)" title="Page 1"></button>
+  <button class="page-dot" id="dot-2" onclick="goToPage(2)" title="Page 2"></button>
+  <button class="page-dot" id="dot-3" onclick="goToPage(3)" title="Page 3"></button>
+</div>
+
+<!-- ==================== BACK NAV ==================== -->
+<nav class="back-nav" id="back-nav">
+  <button class="back-btn" onclick="goBack()">← Back</button>
+</nav>
+
+<!-- ==================== MUSIC ==================== -->
+<button class="music-btn" id="music-btn" onclick="toggleMusic()" title="Play: Happy Birthday Song 🎂 → Ambient Music 🎶 → Off">🎵</button>
+<div class="music-tooltip">🎂 Happy Birthday Song · 🎶 Ambient · 🔇 Off</div>
+
+<!-- ==================== EDITOR TOOLS ==================== -->
+<div class="editor-panel-container" id="editor-panel-container">
+  <button class="editor-toggle-btn" onclick="toggleEditorPanel()" title="Editor Tools">🛠️</button>
+  <div class="editor-panel" id="editor-panel">
+    <h3>✨ Editor Tools ✨</h3>
+    <p>Your edits are automatically saved to this browser. Share it from this device, or reset back to default.</p>
+    <div class="editor-actions">
+      <button onclick="resetEditorData()" class="editor-btn reset-btn">Reset Texts</button>
+      <button onclick="saveUserData(); alert('Saved successfully! 💕')" class="editor-btn save-btn">Save Backup</button>
+    </div>
+    <div class="editor-footer">Changes are auto-saved to browser cache</div>
+  </div>
+</div>
+
+<!-- ===================================================
+     PAGE 1 — LANDING
+     =================================================== -->
+<div class="page active" id="page1">
+  <!-- Background blobs -->
+  <div class="bg-blob blob1"></div>
+  <div class="bg-blob blob2"></div>
+  <div class="bg-blob blob3"></div>
+
+  <div class="hero-content">
+    <div class="sparkle-badge">✨ &nbsp; June 5, 2026 &nbsp; ✨</div>
+
+    <h1 class="hero-title">Happy Birthday,<br>Avani ❤️</h1>
+
+    <p class="hero-subtitle">
+      A little corner of the internet made especially<br>
+      for someone truly wonderful.
+    </p>
+
+    <div class="birthday-cake-wrapper">
+      <div class="cake-glow"></div>
+      <div class="birthday-cake">🎂</div>
+    </div>
+
+    <button class="cta-btn" id="open-surprise-btn" onclick="goToPage(2)">
+      <span>Open Your Surprise</span>
+      <span>🎁</span>
+    </button>
+  </div>
+
+  <!-- Floating butterflies (placed by JS, these are static extras) -->
+  <div class="scroll-hint">
+    <div class="scroll-dot"></div>
+    <div class="scroll-dot"></div>
+    <div class="scroll-dot"></div>
+  </div>
+</div>
+
+<!-- ===================================================
+     PAGE 2 — MEMORIES
+     =================================================== -->
+<div class="page" id="page2">
+
+  <!-- Section: Header -->
+  <div class="section-header" data-reveal>
+    <div class="section-tag">✨ Celebrating You</div>
+    <h2 class="section-title">Avani in Frames 💕</h2>
+    <div class="glow-divider"></div>
+    <p class="section-subtitle">Capturing the grace, smiles, and beautiful magic of you.</p>
+  </div>
+
+  <!-- Section: Photo Gallery -->
+  <div class="photo-gallery-container">
+    <div class="polaroid-grid" id="polaroid-grid">
+      <!-- Photo 1 -->
+      <div class="polaroid-card" onclick="openLightbox('photos/photo1.jpg', this)" data-reveal>
+        <img src="photos/photo1.jpg" alt="Avani smiling" class="polaroid-img"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="polaroid-placeholder" style="display:none">
+          <span class="ph-icon">😊</span>
+          <span class="ph-text">photo1.jpg</span>
+        </div>
+        <div class="polaroid-caption" contenteditable="true" data-placeholder="Your caption here...">That smile 🥺</div>
+      </div>
+
+      <!-- Photo 2 -->
+      <div class="polaroid-card" onclick="openLightbox('photos/photo2.jpg', this)" data-reveal>
+        <img src="photos/photo2.jpg" alt="Avani close-up" class="polaroid-img"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="polaroid-placeholder" style="display:none">
+          <span class="ph-icon">💜</span>
+          <span class="ph-text">photo2.jpg</span>
+        </div>
+        <div class="polaroid-caption" contenteditable="true" data-placeholder="Your caption here...">Glowing as always ✨</div>
+      </div>
+
+      <!-- Photo 3 -->
+      <div class="polaroid-card" onclick="openLightbox('photos/photo3.jpg', this)" data-reveal>
+        <img src="photos/photo3.jpg" alt="Avani at mural wall" class="polaroid-img"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="polaroid-placeholder" style="display:none">
+          <span class="ph-icon">🎨</span>
+          <span class="ph-text">photo3.jpg</span>
+        </div>
+        <div class="polaroid-caption" contenteditable="true" data-placeholder="Your caption here...">Art meets art 🌸</div>
+      </div>
+
+      <!-- Photo 4 -->
+      <div class="polaroid-card" onclick="openLightbox('photos/photo4.jpg', this)" data-reveal>
+        <img src="photos/photo4.jpg" alt="Avani at the beach" class="polaroid-img"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="polaroid-placeholder" style="display:none">
+          <span class="ph-icon">🌊</span>
+          <span class="ph-text">photo4.jpg</span>
+        </div>
+        <div class="polaroid-caption" contenteditable="true" data-placeholder="Your caption here...">Ocean vibes 🌊</div>
+      </div>
+
+      <!-- Photo 5 -->
+      <div class="polaroid-card" onclick="openLightbox('photos/photo5.jpg', this)" data-reveal>
+        <img src="photos/photo5.jpg" alt="Avani in saree" class="polaroid-img"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+        <div class="polaroid-placeholder" style="display:none">
+          <span class="ph-icon">🥻</span>
+          <span class="ph-text">photo5.jpg</span>
+        </div>
+        <div class="polaroid-caption" contenteditable="true" data-placeholder="Your caption here...">Elegance personified 💫</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Timeline -->
+  <div class="timeline-section">
+    <div class="section-header" data-reveal style="padding-top:1rem;">
+      <div class="section-tag">⏳ Our Story</div>
+      <h2 class="section-title">Memory Lane 🌸</h2>
+      <div class="glow-divider"></div>
+    </div>
+
+    <div class="timeline" id="timeline">
+
+      <div class="timeline-item" data-reveal>
+        <div class="timeline-dot">🌟</div>
+        <div class="timeline-content">
+          <div class="timeline-date" contenteditable="true" data-placeholder="When?">5th Grade</div>
+          <div class="timeline-title" contenteditable="true" data-placeholder="Memory title...">The Very Beginning 🥹</div>
+          <div class="timeline-text" contenteditable="true" data-placeholder="Write your memory here...">From 5th grade till today, our friendship has been one of the most beautiful chapters of my life. Happy Birthday, dearest Avani..!! 🎉💖</div>
+        </div>
+      </div>
+
+      <div class="timeline-item" data-reveal>
+        <div class="timeline-dot">💫</div>
+        <div class="timeline-content">
+          <div class="timeline-date" contenteditable="true" data-placeholder="When?">School Days</div>
+          <div class="timeline-title" contenteditable="true" data-placeholder="Memory title...">Complainings to Mom 😅</div>
+          <div class="timeline-text" contenteditable="true" data-placeholder="Write your memory here...">I still remember how you used to complain about me to my mom 😅, but now I realize it was always for my good. So thank you for caring for me in your own sweet way.</div>
+        </div>
+      </div>
+
+      <div class="timeline-item" data-reveal>
+        <div class="timeline-dot">😂</div>
+        <div class="timeline-content">
+          <div class="timeline-date" contenteditable="true" data-placeholder="When?">Always & Forever</div>
+          <div class="timeline-title" contenteditable="true" data-placeholder="Memory title...">You're Like Family 💕</div>
+          <div class="timeline-text" contenteditable="true" data-placeholder="Write your memory here...">You’re not just my best friend, you’re like family to me. Stay the same amazing person you’ve always been. ☺️💕</div>
+        </div>
+      </div>
+
+      <div class="timeline-item" data-reveal>
+        <div class="timeline-dot">💗</div>
+        <div class="timeline-content">
+          <div class="timeline-date" contenteditable="true" data-placeholder="When?">Your Special Day</div>
+          <div class="timeline-title" contenteditable="true" data-placeholder="Memory title...">My Forever School Bestie! 🎂✨</div>
+          <div class="timeline-text" contenteditable="true" data-placeholder="Write your memory here...">I wish your birthday brings endless smiles, countless blessings, and every dream of yours comes true. Happy Birthday once again! 🎂✨</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Section: Memory Notes -->
+  <div class="notes-section">
+    <div class="section-header" data-reveal style="padding-top:0;">
+      <div class="section-tag">💌 From My Heart</div>
+      <h2 class="section-title">Things I Love About You ✨</h2>
+      <div class="glow-divider"></div>
+    </div>
+
+    <div class="notes-grid">
+      <div class="note-card" data-reveal style="--gradient: linear-gradient(90deg, #f4a7bb, #e8759a);">
+        <div class="note-icon">🌸</div>
+        <div class="note-title">Your Laugh</div>
+        <div class="note-text" contenteditable="true" data-placeholder="Write something here...">Your laugh is genuinely one of the most contagious things in the world. You could brighten the darkest room without even trying.</div>
+      </div>
+
+      <div class="note-card" data-reveal style="--gradient: linear-gradient(90deg, #d8b4fe, #c084fc);">
+        <div class="note-icon">💜</div>
+        <div class="note-title">Your Kindness</div>
+        <div class="note-text" contenteditable="true" data-placeholder="Write something here...">The way you make everyone around you feel seen and valued — that's a rare superpower. Your kindness is one of your greatest strengths.</div>
+      </div>
+
+      <div class="note-card" data-reveal style="--gradient: linear-gradient(90deg, #fda4af, #fb7185);">
+        <div class="note-icon">✨</div>
+        <div class="note-title">Your Energy</div>
+        <div class="note-text" contenteditable="true" data-placeholder="Write something here...">You have this amazing energy that makes ordinary moments feel like adventures. Life is genuinely more fun and interesting because of you.</div>
+      </div>
+
+      <div class="note-card" data-reveal style="--gradient: linear-gradient(90deg, #f0d5b5, #c9a87c);">
+        <div class="note-icon">🌺</div>
+        <div class="note-title">A Favourite Memory</div>
+        <div class="note-text" contenteditable="true" data-placeholder="Write your favourite memory here...">Click here and write about one of your most cherished memories with Avani. Make it personal, make it real, make it yours.</div>
+      </div>
+
+      <div class="note-card" data-reveal style="--gradient: linear-gradient(90deg, #a5f3fc, #38bdf8);">
+        <div class="note-icon">💫</div>
+        <div class="note-title">Something Special</div>
+        <div class="note-text" contenteditable="true" data-placeholder="Write something here...">Write something only the two of you would understand here — an inside joke, a shared dream, a moment only you two experienced.</div>
+      </div>
+
+      <div class="note-card" data-reveal style="--gradient: linear-gradient(90deg, #bbf7d0, #4ade80);">
+        <div class="note-icon">🌿</div>
+        <div class="note-title">What I Wish For You</div>
+        <div class="note-text" contenteditable="true" data-placeholder="Write something here...">I wish you every dream you've ever dared to dream, every happiness you deserve, and a life as beautiful as the person you are. Happy Birthday! 🎂</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nav to Page 3 -->
+  <div class="page-nav">
+    <button class="nav-btn" onclick="goToPage(3)">
+      <span>Read My Letter</span>
+      <span>❤️</span>
+    </button>
+  </div>
+</div>
+
+<!-- ===================================================
+     PAGE 3 — LETTER & EXTRAS
+     =================================================== -->
+<div class="page" id="page3">
+
+  <!-- Envelope Section -->
+  <div class="envelope-section">
+    <div class="section-tag" data-reveal>💌 Something Personal</div>
+    <h2 class="section-title" style="font-family:'Dancing Script',cursive; font-size:clamp(2rem,5vw,4rem); color:var(--pink-deep);" data-reveal>
+      A Letter For You, Avani 🌸
+    </h2>
+    <div class="glow-divider"></div>
+    <p class="section-subtitle" data-reveal>Click the envelope to open your surprise ✨</p>
+
+    <div class="envelope-wrapper" id="envelope-wrapper" onclick="openEnvelope()">
+      <div class="envelope">
+        <div class="envelope-body">
+          <div class="envelope-flap" id="envelope-flap"></div>
+          <div class="envelope-seal" id="envelope-seal">💌</div>
+        </div>
+      </div>
+    </div>
+    <p class="envelope-hint" id="envelope-hint">Tap to open 💕</p>
+  </div>
+
+  <!-- Letter -->
+  <div class="letter-section" id="letter-section">
+    <div class="letter-paper">
+      <div class="letter-header" id="letter-date">June 5, 2026 ✨</div>
+
+      <div class="letter-salutation" contenteditable="true" data-placeholder="Dear Avani,">
+        Dear Avani,
+      </div>
+
+      <div class="letter-body" contenteditable="true" id="letter-body"
+           data-placeholder="Write your heartfelt letter here...">
+        Where do I even begin?
+
+You are someone who has made my life so much better just by being in it. Your presence is a gift — not just on your birthday, but every single day.
+
+From the very beginning, there has been something extraordinary about you. The way you carry yourself, the way you make people feel at ease, the way you laugh, the way you care — it's all genuinely rare, and I never want you to underestimate that.
+
+I've watched you grow, I've seen your strength on the hard days, and I've been lucky enough to share some of the best moments of my life with you. Every memory we've made together is something I hold incredibly close to my heart.
+
+On this special day, I want you to know how deeply appreciated you are. Not for what you do, but for who you are. Just existing as Avani is something the world is lucky for.
+
+So here's to you — to your beautiful smile, your warm heart, your unstoppable spirit, and the incredible journey ahead. May everything you've ever dreamed of find its way to you this year and every year after.
+
+You deserve the absolute world, Avani. And I truly hope this birthday feels as magical as you are. 💕
+      </div>
+
+      <div class="letter-closing" contenteditable="true" data-placeholder="With all my love,">
+        With all my love,
+      </div>
+      <div class="letter-signature" contenteditable="true" data-placeholder="Your name here 💕">
+        Your Best Friend 💕
+      </div>
+    </div>
+  </div>
+
+  <!-- Compliment Cards -->
+  <div class="compliments-section">
+    <div class="section-header" data-reveal style="padding-top:1rem;">
+      <div class="section-tag">✨ Just For You</div>
+      <h2 class="section-title">Reasons You're Amazing ✨</h2>
+      <div class="glow-divider"></div>
+      <p class="section-subtitle">Click each card to reveal a message 💕</p>
+    </div>
+
+    <div class="compliments-grid">
+
+      <div class="flip-card" onclick="flipCard(this)" data-reveal>
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="flip-front-icon">☀️</div>
+            <div class="flip-front-label">Your Smile</div>
+            <div class="flip-front-hint">tap to reveal</div>
+          </div>
+          <div class="flip-card-back">
+            <p class="flip-back-text">"Your smile brightens every single room you walk into. It's genuinely one of the most beautiful things in the world."</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" onclick="flipCard(this)" data-reveal>
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="flip-front-icon">🌸</div>
+            <div class="flip-front-label">Your Presence</div>
+            <div class="flip-front-hint">tap to reveal</div>
+          </div>
+          <div class="flip-card-back">
+            <p class="flip-back-text">"You make people feel comfortable and happy just by being around. That's a superpower most people will never have."</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" onclick="flipCard(this)" data-reveal>
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="flip-front-icon">💖</div>
+            <div class="flip-front-label">Your Heart</div>
+            <div class="flip-front-hint">tap to reveal</div>
+          </div>
+          <div class="flip-card-back">
+            <p class="flip-back-text">"Your kindness is one of your greatest strengths. You give without expecting anything back — that's truly rare."</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" onclick="flipCard(this)" data-reveal>
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="flip-front-icon">✨</div>
+            <div class="flip-front-label">Your Magic</div>
+            <div class="flip-front-hint">tap to reveal</div>
+          </div>
+          <div class="flip-card-back">
+            <p class="flip-back-text">"You make ordinary moments unforgettable. Somehow, everything is better when you're there."</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" onclick="flipCard(this)" data-reveal>
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="flip-front-icon">🌺</div>
+            <div class="flip-front-label">Your Spirit</div>
+            <div class="flip-front-hint">tap to reveal</div>
+          </div>
+          <div class="flip-card-back">
+            <p class="flip-back-text">"You are genuinely one of a kind. The world is a better, brighter place with you in it."</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="flip-card" onclick="flipCard(this)" data-reveal>
+        <div class="flip-card-inner">
+          <div class="flip-card-front">
+            <div class="flip-front-icon">🎀</div>
+            <div class="flip-front-label">Your Worth</div>
+            <div class="flip-front-hint">tap to reveal</div>
+          </div>
+          <div class="flip-card-back">
+            <p class="flip-back-text">"You deserve endless happiness, love, success, and every beautiful thing your heart has ever wished for. Never forget that."</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Final Surprise -->
+  <div class="final-section">
+    <div class="section-header" data-reveal>
+      <div class="section-tag">🎉 One More Thing</div>
+      <h2 class="section-title" style="font-family:'Dancing Script',cursive; color:var(--pink-deep); font-size:clamp(2rem,5vw,4rem);">Almost Done… 🎁</h2>
+      <div class="glow-divider"></div>
+      <p class="section-subtitle" style="margin-bottom:2.5rem;">I saved the best for last.</p>
+    </div>
+
+    <button class="final-btn" id="final-btn" onclick="triggerFinalSurprise()">
+      <span>One Last Surprise</span>
+      <span>❤️</span>
+    </button>
+
+    <div class="final-message" id="final-message">
+      <div class="final-msg-title">Happy Birthday, Avani ❤️</div>
+      <p class="final-msg-text">
+        May your life be filled with endless happiness, beautiful memories, laughter, success, love, 
+        and every wonderful thing your heart wishes for. You deserve all the happiness in the world. 
+        Thank you for being such an amazing person in my life. The world is genuinely a better place 
+        because you exist in it — don't ever forget that. ✨<br><br>
+        This little website is just a tiny fraction of how much I appreciate you. 
+        No words will ever be enough. But I hope this made you smile today — 
+        because your smile is one of the greatest things in the world. 💕<br><br>
+        <strong style="font-family:'Dancing Script',cursive; font-size:1.4rem; color:var(--pink-deep);">
+          Happy Birthday, beautiful soul. Here's to YOU! 🎂🎊✨
+        </strong>
+      </p>
+    </div>
+
+    <div style="height: 6rem;"></div>
+  </div>
+</div>
+
+<!-- ==================== LIGHTBOX ==================== -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <img class="lightbox-img" id="lightbox-img" src="" alt="Memory" />
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
